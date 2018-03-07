@@ -1,6 +1,7 @@
 package(default_visibility = ["//visibility:public"])
 
 load("@io_bazel_rules_docker//docker:docker.bzl", "docker_build", "docker_bundle")
+load("@io_bazel_rules_go//go:def.bzl", "go_path")
 load("@io_kubernetes_build//defs:build.bzl", "release_filegroup")
 
 filegroup(
@@ -164,5 +165,29 @@ filegroup(
         "//hack/lib:all-srcs",
         "//test/e2e/testing-manifests:all-srcs",
         "//test/kubemark:all-srcs",
+    ],
+)
+
+go_path(
+    name = "go-srcs",
+    deps = [
+        "//cluster/gce/gci/mounter",
+        "//cmd/cloud-controller-manager",
+        "//cmd/gendocs",
+        "//cmd/genkubedocs",
+        "//cmd/genman",
+        "//cmd/genswaggertypedocs",
+        "//cmd/genyaml",
+        "//cmd/hyperkube",
+        "//cmd/kube-apiserver",
+        "//cmd/kube-controller-manager",
+        "//cmd/kube-proxy",
+        "//cmd/kube-scheduler",
+        "//cmd/kubeadm",
+        "//cmd/kubelet",
+        "//cmd/kubemark",  # TODO: server platforms only
+        "//cmd/linkcheck",
+        "//vendor/github.com/onsi/ginkgo/ginkgo",
+        "//vendor/k8s.io/kube-aggregator",
     ],
 )
