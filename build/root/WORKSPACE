@@ -2,8 +2,8 @@ load("//build:workspace_mirror.bzl", "mirror")
 
 http_archive(
     name = "io_bazel_rules_go",
-    sha256 = "6c770aece75ac47fe218ad881775c37cf29db013ab751d0bfef01c0b5a6ee01f",
-    urls = mirror("https://github.com/bazelbuild/rules_go/releases/download/0.10.4/rules_go-0.10.4.tar.gz"),
+    sha256 = "c1f52b8789218bb1542ed362c4f7de7052abcf254d865d96fb7ba6d44bc15ee3",
+    urls = mirror("https://github.com/bazelbuild/rules_go/releases/download/0.12.0/rules_go-0.12.0.tar.gz"),
 )
 
 http_archive(
