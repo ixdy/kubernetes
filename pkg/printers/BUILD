@@ -45,26 +45,6 @@ go_library(
     ],
 )
 
-go_test(
-    name = "go_default_xtest",
-    srcs = [
-        "customcolumn_flags_test.go",
-        "customcolumn_test.go",
-        "json_yaml_flags_test.go",
-        "jsonpath_flags_test.go",
-        "name_flags_test.go",
-        "template_flags_test.go",
-    ],
-    deps = [
-        ":go_default_library",
-        "//pkg/api/legacyscheme:go_default_library",
-        "//pkg/apis/core:go_default_library",
-        "//vendor/k8s.io/api/core/v1:go_default_library",
-        "//vendor/k8s.io/apimachinery/pkg/apis/meta/v1:go_default_library",
-        "//vendor/k8s.io/apimachinery/pkg/runtime:go_default_library",
-    ],
-)
-
 filegroup(
     name = "package-srcs",
     srcs = glob(["**"]),
@@ -85,12 +65,19 @@ filegroup(
 go_test(
     name = "go_default_test",
     srcs = [
+        "customcolumn_flags_test.go",
+        "customcolumn_test.go",
         "flags_test.go",
         "humanreadable_test.go",
+        "json_yaml_flags_test.go",
+        "jsonpath_flags_test.go",
+        "name_flags_test.go",
+        "template_flags_test.go",
         "template_test.go",
     ],
     embed = [":go_default_library"],
     deps = [
+        "//pkg/api/legacyscheme:go_default_library",
         "//pkg/apis/core:go_default_library",
         "//vendor/k8s.io/api/core/v1:go_default_library",
         "//vendor/k8s.io/apimachinery/pkg/apis/meta/v1:go_default_library",
