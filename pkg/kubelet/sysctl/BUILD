@@ -30,7 +30,7 @@ go_test(
         "whitelist_test.go",
     ],
     embed = [":go_default_library"],
-    deps = ["//vendor/k8s.io/api/core/v1:go_default_library"],
+    deps = ["//staging/src/k8s.io/api/core/v1:go_default_library"],
 )
 
 filegroup(

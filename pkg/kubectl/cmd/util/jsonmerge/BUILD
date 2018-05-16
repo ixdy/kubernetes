@@ -9,10 +9,10 @@ go_library(
     importpath = "k8s.io/kubernetes/pkg/kubectl/cmd/util/jsonmerge",
     visibility = ["//visibility:public"],
     deps = [
+        "//staging/src/k8s.io/apimachinery/pkg/util/mergepatch:go_default_library",
+        "//staging/src/k8s.io/apimachinery/pkg/util/yaml:go_default_library",
         "//vendor/github.com/evanphx/json-patch:go_default_library",
         "//vendor/github.com/golang/glog:go_default_library",
-        "//vendor/k8s.io/apimachinery/pkg/util/mergepatch:go_default_library",
-        "//vendor/k8s.io/apimachinery/pkg/util/yaml:go_default_library",
     ],
 )
 

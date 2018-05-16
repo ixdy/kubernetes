@@ -15,11 +15,11 @@ go_test(
     embed = [":go_default_library"],
     deps = [
         "//pkg/kubelet/kubeletconfig/util/test:go_default_library",
+        "//staging/src/k8s.io/api/core/v1:go_default_library",
+        "//staging/src/k8s.io/apimachinery/pkg/api/equality:go_default_library",
+        "//staging/src/k8s.io/apimachinery/pkg/apis/meta/v1:go_default_library",
+        "//staging/src/k8s.io/client-go/kubernetes/fake:go_default_library",
         "//vendor/github.com/davecgh/go-spew/spew:go_default_library",
-        "//vendor/k8s.io/api/core/v1:go_default_library",
-        "//vendor/k8s.io/apimachinery/pkg/api/equality:go_default_library",
-        "//vendor/k8s.io/apimachinery/pkg/apis/meta/v1:go_default_library",
-        "//vendor/k8s.io/client-go/kubernetes/fake:go_default_library",
     ],
 )
 
@@ -37,11 +37,11 @@ go_library(
         "//pkg/kubelet/kubeletconfig/status:go_default_library",
         "//pkg/kubelet/kubeletconfig/util/codec:go_default_library",
         "//pkg/kubelet/kubeletconfig/util/log:go_default_library",
-        "//vendor/k8s.io/api/core/v1:go_default_library",
-        "//vendor/k8s.io/apimachinery/pkg/api/equality:go_default_library",
-        "//vendor/k8s.io/apimachinery/pkg/apis/meta/v1:go_default_library",
-        "//vendor/k8s.io/apimachinery/pkg/runtime:go_default_library",
-        "//vendor/k8s.io/client-go/kubernetes:go_default_library",
+        "//staging/src/k8s.io/api/core/v1:go_default_library",
+        "//staging/src/k8s.io/apimachinery/pkg/api/equality:go_default_library",
+        "//staging/src/k8s.io/apimachinery/pkg/apis/meta/v1:go_default_library",
+        "//staging/src/k8s.io/apimachinery/pkg/runtime:go_default_library",
+        "//staging/src/k8s.io/client-go/kubernetes:go_default_library",
     ],
 )
 

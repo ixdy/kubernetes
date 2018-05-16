@@ -28,10 +28,10 @@ go_library(
         "//pkg/kubectl/genericclioptions/resource:go_default_library",
         "//pkg/printers:go_default_library",
         "//pkg/registry/rbac/reconciliation:go_default_library",
+        "//staging/src/k8s.io/apimachinery/pkg/api/meta:go_default_library",
+        "//staging/src/k8s.io/apimachinery/pkg/runtime/schema:go_default_library",
         "//vendor/github.com/golang/glog:go_default_library",
         "//vendor/github.com/spf13/cobra:go_default_library",
-        "//vendor/k8s.io/apimachinery/pkg/api/meta:go_default_library",
-        "//vendor/k8s.io/apimachinery/pkg/runtime/schema:go_default_library",
     ],
 )
 
@@ -57,8 +57,8 @@ go_test(
     deps = [
         "//pkg/api/legacyscheme:go_default_library",
         "//pkg/kubectl/cmd/testing:go_default_library",
-        "//vendor/k8s.io/apimachinery/pkg/runtime/schema:go_default_library",
-        "//vendor/k8s.io/client-go/rest:go_default_library",
-        "//vendor/k8s.io/client-go/rest/fake:go_default_library",
+        "//staging/src/k8s.io/apimachinery/pkg/runtime/schema:go_default_library",
+        "//staging/src/k8s.io/client-go/rest:go_default_library",
+        "//staging/src/k8s.io/client-go/rest/fake:go_default_library",
     ],
 )
