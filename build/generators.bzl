@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+load("@io_bazel_rules_go//go:def.bzl", "go_path")
+
 # Genrule wrapper around the go-bindata utility.
 # IMPORTANT: Any changes to this rule may also require changes to hack/generate-bindata.sh.
 def go_bindata(
@@ -47,5 +49,30 @@ $(location //vendor/github.com/jteeuwen/go-bindata/go-bindata:go-bindata) \
         tools = [
             "//vendor/github.com/jteeuwen/go-bindata/go-bindata",
         ],
+        **kw
+    )
+
+    # Genrule wrapper for tools which need dependencies in a valid GOPATH.
+    # Go source dependencies are specified through the go_deps arg.
+    # These are passed to the rules_go go_path rule to build a GOPATH for the
+    # genrule command.
+
+def go_genrule(
+        name,
+        srcs,
+        go_deps,
+        cmd,
+        **kw):
+    go_path_name = "_%s-gopath" % name
+    go_path(
+        name = go_path_name,
+        mode = "copy",
+        visibility = ["//visibility:private"],
+        deps = go_deps,
+    )
+    native.genrule(
+        name = name,
+        srcs = srcs + [":%s" % go_path_name],
+        cmd = ("export GOPATH=$(location :%s); " % go_path_name) + cmd,
         **kw
     )

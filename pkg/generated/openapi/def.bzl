@@ -12,7 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_path")
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+load("//build:generators.bzl", "go_genrule")
 
 def openapi_library(
         name,
@@ -39,20 +40,13 @@ def openapi_library(
         tags = tags,
         deps = deps,
     )
-    go_path(
-        name = "_openapi-gengo-gopath",
-        mode = "copy",
-        deps = deps,
-    )
-    native.genrule(
+    go_genrule(
         name = "zz_generated.openapi",
         srcs = [
             "//" + vendor_prefix + "hack/boilerplate:boilerplate.go.txt",
-            ":_openapi-gengo-gopath",
         ],
         outs = ["zz_generated.openapi.go"],
         cmd = " ".join([
-            "export GOPATH=$(location :_openapi-gengo-gopath);",
             "$(location //vendor/k8s.io/code-generator/cmd/openapi-gen)",
             "--v 1",
             "--logtostderr",
@@ -62,5 +56,6 @@ def openapi_library(
             "--input-dirs " + ",".join([go_prefix + target for target in openapi_targets] + vendor_targets),
             "&& cp $$GOPATH/src/" + go_prefix + "pkg/generated/openapi/zz_generated.openapi.go $(location :zz_generated.openapi.go)",
         ]),
+        go_deps = deps,
         tools = ["//vendor/k8s.io/code-generator/cmd/openapi-gen"],
     )
