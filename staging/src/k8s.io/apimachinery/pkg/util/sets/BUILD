@@ -1,9 +1,9 @@
 package(default_visibility = ["//visibility:public"])
 
-load("@io_kubernetes_build//defs:go.bzl", "go_genrule")
 load(
     "@io_bazel_rules_go//go:def.bzl",
     "go_library",
+    "go_path",
     "go_test",
 )
 
@@ -20,9 +20,18 @@ go_library(
     importpath = "k8s.io/apimachinery/pkg/util/sets",
 )
 
-go_genrule(
-    name = "set-gen",
+go_path(
+    name = "_set-gengo-gopath",
+    mode = "copy",
+    deps = [
+        "//staging/src/k8s.io/apimachinery/pkg/util/sets/types:go_default_library",
+    ],
+)
+
+genrule(
+    name = "set-gen-new",
     srcs = [
+        ":_set-gengo-gopath",
         "//hack/boilerplate:boilerplate.generatego.txt",
     ],
     outs = [
@@ -34,18 +43,14 @@ go_genrule(
         "string.go",
     ],
     cmd = """
-$(location //vendor/k8s.io/code-generator/cmd/set-gen) \
-    --input-dirs ./vendor/k8s.io/apimachinery/pkg/util/sets/types \
+    export GOPATH=$(location :_set-gengo-gopath)
+    $(location //vendor/k8s.io/code-generator/cmd/set-gen) \
+    --input-dirs k8s.io/apimachinery/pkg/util/sets/types \
     --output-base $$(dirname $$(dirname $(location :byte.go))) \
     --go-header-file $(location //hack/boilerplate:boilerplate.generatego.txt) \
     --output-package sets
     """,
-    go_deps = [
-        "//vendor/k8s.io/apimachinery/pkg/util/sets/types:go_default_library",
-    ],
-    tools = [
-        "//vendor/k8s.io/code-generator/cmd/set-gen",
-    ],
+    tools = ["//vendor/k8s.io/code-generator/cmd/set-gen"],
 )
 
 go_test(
