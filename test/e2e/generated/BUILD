@@ -4,7 +4,7 @@ load(
     "@io_bazel_rules_go//go:def.bzl",
     "go_library",
 )
-load("//build:bindata.bzl", "go_bindata")
+load("//build:generators.bzl", "go_bindata")
 
 go_library(
     name = "go_default_library",
