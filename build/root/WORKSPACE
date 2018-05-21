@@ -41,8 +41,8 @@ load("@bazel_skylib//:lib.bzl", "versions")
 
 versions.check(minimum_bazel_version = "0.13.0")
 
-load("@io_bazel_rules_go//go:def.bzl", "go_rules_dependencies", "go_register_toolchains", "go_download_sdk")
-load("@io_bazel_rules_docker//docker:docker.bzl", "docker_repositories", "docker_pull")
+load("@io_bazel_rules_go//go:def.bzl", "go_download_sdk", "go_register_toolchains", "go_rules_dependencies")
+load("@io_bazel_rules_docker//docker:docker.bzl", "docker_pull", "docker_repositories")
 
 go_rules_dependencies()
 
