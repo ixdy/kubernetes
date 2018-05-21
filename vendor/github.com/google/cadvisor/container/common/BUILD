@@ -8,7 +8,7 @@ go_library(
         "fsnotify_watcher.go",
         "helpers.go",
     ],
-    importmap = "vendor/github.com/google/cadvisor/container/common",
+    importmap = "k8s.io/kubernetes/vendor/github.com/google/cadvisor/container/common",
     importpath = "github.com/google/cadvisor/container/common",
     visibility = ["//visibility:public"],
     deps = [
