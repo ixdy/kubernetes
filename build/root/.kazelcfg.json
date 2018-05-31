@@ -6,5 +6,5 @@
 		"^third_party/etcd.*"
 	],
 	"AddSourcesRules": true,
-	"K8sOpenAPIGen": true
+	"K8sCodegenBzlFile": "build/generated.bzl"
 }
