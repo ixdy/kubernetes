@@ -1,15 +1,22 @@
-# doc.go is managed by kazel, so gazelle should ignore it.
-# gazelle:exclude doc.go
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
 
 package(default_visibility = ["//visibility:public"])
 
-load("//pkg/generated/openapi:def.bzl", "openapi_library")
-load("//build:openapi.bzl", "openapi_go_prefix", "openapi_vendor_prefix")
+load("//pkg/generated/openapi:def.bzl", "gen_openapi", "openapi_deps")
 
-openapi_library(
+gen_openapi(
+    outs = ["zz_generated.openapi.go"],
+)
+
+go_library(
     name = "go_default_library",
-    srcs = ["doc.go"],
-    vendor_prefix = openapi_vendor_prefix,
+    srcs = [
+        "doc.go",
+        "zz_generated.openapi.go",
+    ],
+    importpath = "k8s.io/kubernetes/pkg/generated/openapi",
+    # keep
+    deps = openapi_deps(),
 )
 
 filegroup(
