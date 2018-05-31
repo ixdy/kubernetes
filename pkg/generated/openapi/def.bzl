@@ -14,12 +14,20 @@
 
 load("@io_bazel_rules_go//go:def.bzl", "go_library")
 load("@io_kubernetes_build//defs:go.bzl", "go_genrule")
+load("//build:generated.bzl", "go_prefix", "tags_values_pkgs")
+load("//build:openapi.bzl", "openapi_go_prefix", "openapi_vendor_prefix")
 
-def openapi_library(name, tags, srcs, go_prefix, vendor_prefix = "", openapi_targets = [], vendor_targets = []):
+def openapi_library(name, srcs, tags = None, vendor_prefix = ""):
     deps = [
         "//vendor/github.com/go-openapi/spec:go_default_library",
         "//vendor/k8s.io/kube-openapi/pkg/common:go_default_library",
-    ] + ["//%s:go_default_library" % target for target in openapi_targets] + ["//staging/src/%s:go_default_library" % target for target in vendor_targets]
+    ]
+    for pkg in tags_values_pkgs["openapi-gen"]["true"]:
+        if pkg.startswith(go_prefix):
+            # len + 1 to include /
+            deps.append("//%s:go_default_library" % pkg[len(go_prefix) + 1:])
+        else:
+            deps.append("//staging/src/%s:go_default_library" % pkg)
     go_library(
         name = name,
         srcs = srcs + [":zz_generated.openapi"],
@@ -38,7 +46,7 @@ def openapi_library(name, tags, srcs, go_prefix, vendor_prefix = "", openapi_tar
             "--go-header-file $(location //" + vendor_prefix + "hack/boilerplate:boilerplate.go.txt)",
             "--output-file-base zz_generated.openapi",
             "--output-package " + go_prefix + "pkg/generated/openapi",
-            "--input-dirs " + ",".join([go_prefix + target for target in openapi_targets] + vendor_targets),
+            "--input-dirs " + ",".join(tags_values_pkgs["openapi-gen"]["true"]),
             "&& cp $$GOPATH/src/" + go_prefix + "pkg/generated/openapi/zz_generated.openapi.go $(location :zz_generated.openapi.go)",
         ]),
         go_deps = deps,
