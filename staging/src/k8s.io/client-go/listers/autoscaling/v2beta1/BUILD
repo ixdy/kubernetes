@@ -7,6 +7,7 @@ go_library(
         "horizontalpodautoscaler.go",
         "verticalpodautoscaler.go",
     ],
+    importmap = "k8s.io/kubernetes/vendor/k8s.io/client-go/listers/autoscaling/v2beta1",
     importpath = "k8s.io/client-go/listers/autoscaling/v2beta1",
     visibility = ["//visibility:public"],
     deps = [
