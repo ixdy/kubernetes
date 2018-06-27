@@ -28,6 +28,7 @@
 package_group(
     name = "COMMON_generators",
     packages = [
+        "//build",
         "//cmd/gendocs",
         "//cmd/genman",
         "//cmd/genyaml",
@@ -191,6 +192,7 @@ package_group(
 package_group(
     name = "pkg_kubectl_cmd_testing_CONSUMERS",
     packages = [
+        "//build",
         "//pkg/kubectl/cmd",
         "//pkg/kubectl/cmd/auth",
         "//pkg/kubectl/cmd/create",

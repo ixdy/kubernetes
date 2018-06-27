@@ -2,6 +2,7 @@ package(default_visibility = ["//visibility:public"])
 
 load("@io_bazel_rules_docker//docker:docker.bzl", "docker_build", "docker_bundle")
 load("@io_kubernetes_build//defs:build.bzl", "release_filegroup")
+load("//build:gengo.bzl", "gen_conversion_all", "gen_deepcopy_all", "gen_defaulter_all")
 
 filegroup(
     name = "package-srcs",
@@ -166,3 +167,9 @@ filegroup(
         "//test/kubemark:all-srcs",
     ],
 )
+
+gen_deepcopy_all()
+
+gen_defaulter_all()
+
+gen_conversion_all()

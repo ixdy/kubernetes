@@ -1,17 +1,21 @@
 load("//build:workspace_mirror.bzl", "mirror")
 load("//build:workspace.bzl", "CRI_TOOLS_VERSION")
 
-http_archive(
+#http_archive(
+local_repository(
     name = "io_bazel_rules_go",
-    sha256 = "8b68d0630d63d95dacc0016c3bb4b76154fe34fca93efd65d1c366de3fcb4294",
-    urls = mirror("https://github.com/bazelbuild/rules_go/releases/download/0.12.1/rules_go-0.12.1.tar.gz"),
+    path = "/usr/local/google/home/jgrafton/code/src/github.com/bazelbuild/rules_go",
+    #    sha256 = "8b68d0630d63d95dacc0016c3bb4b76154fe34fca93efd65d1c366de3fcb4294",
+    #    urls = mirror("https://github.com/bazelbuild/rules_go/releases/download/0.12.1/rules_go-0.12.1.tar.gz"),
 )
 
-http_archive(
+#http_archive(
+local_repository(
     name = "io_kubernetes_build",
-    sha256 = "6d87da8d97ccac3702eb9894541c32dd19a312f783f863e44bf8262d05dfaf2e",
-    strip_prefix = "repo-infra-3c350a455362b622fe786e63f8f07b2a87f54f7b",
-    urls = mirror("https://github.com/kubernetes/repo-infra/archive/3c350a455362b622fe786e63f8f07b2a87f54f7b.tar.gz"),
+    path = "/usr/local/google/home/jgrafton/code/kubernetes/src/k8s.io/repo-infra",
+    #sha256 = "6d87da8d97ccac3702eb9894541c32dd19a312f783f863e44bf8262d05dfaf2e",
+    #strip_prefix = "repo-infra-3c350a455362b622fe786e63f8f07b2a87f54f7b",
+    #urls = mirror("https://github.com/kubernetes/repo-infra/archive/3c350a455362b622fe786e63f8f07b2a87f54f7b.tar.gz"),
 )
 
 http_archive(
