@@ -61,6 +61,10 @@ def _find_generator_tag_pkgs_impl(repo_ctx):
         # and remove the basename to yield the package name.
         pkg = fname[len("%s" % repo_root) + 1:].rpartition(sep = "/")[0]
 
+        # Skip things like _examples packages
+        if pkg.startswith("_") or "/_" in pkg:
+            continue
+
         # Strip off the leading "+k8s:", then split into tag name and value
         tag, _, values = match.partition(":")[2].partition("=")
 
