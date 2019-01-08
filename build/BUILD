@@ -163,3 +163,34 @@ filegroup(
         "//test/kubemark:all-srcs",
     ],
 )
+
+[cc_toolchain(
+    name = "cc-gcc-" + cpu,
+    all_files = ":empty",
+    compiler_files = ":empty",
+    cpu = cpu,
+    dwp_files = ":empty",
+    dynamic_runtime_libs = [":empty"],
+    linker_files = ":empty",
+    objcopy_files = ":empty",
+    static_runtime_libs = [":empty"],
+    strip_files = ":empty",
+    supports_param_files = 1,
+    toolchain_identifier = "local-" + cpu,
+) for cpu in [
+    "host",
+    "arm",
+]]
+
+cc_toolchain_suite(
+    name = "toolchain",
+    toolchains = {
+        "host|gcc": ":cc-gcc-host",
+        "arm|gcc": ":cc-gcc-arm",
+    },
+)
+
+filegroup(
+    name = "empty",
+    srcs = [],
+)
