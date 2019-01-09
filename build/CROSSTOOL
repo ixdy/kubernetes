@@ -24,8 +24,14 @@ toolchain {
   tool_path { name: "cpp" path: "/usr/bin/cpp" }
   tool_path { name: "dwp" path: "/usr/bin/dwp" }
   tool_path { name: "gcc" path: "/usr/bin/gcc" }
-  cxx_flag: "-std=c++0x"
-  linker_flag: "-lstdc++"
+  tool_path { name: "gcov" path: "/usr/bin/gcov" }
+  # C(++) compiles invoke the compiler (as that is the one knowing where
+  # to find libraries), but we provide LD so other rules can invoke the linker.
+  tool_path { name: "ld" path: "/usr/bin/ld" }
+  tool_path { name: "nm" path: "/usr/bin/nm" }
+  tool_path { name: "objcopy" path: "/usr/bin/objcopy" }
+  tool_path { name: "objdump" path: "/usr/bin/objdump" }
+  tool_path { name: "strip" path: "/usr/bin/strip" }
 
   # TODO(bazel-team): In theory, the path here ought to exactly match the path
   # used by gcc. That works because bazel currently doesn't track files at
@@ -34,18 +40,9 @@ toolchain {
   cxx_builtin_include_directory: "/usr/lib/gcc/"
   cxx_builtin_include_directory: "/usr/local/include"
   cxx_builtin_include_directory: "/usr/include"
-  tool_path { name: "gcov" path: "/usr/bin/gcov" }
 
-  # C(++) compiles invoke the compiler (as that is the one knowing where
-  # to find libraries), but we provide LD so other rules can invoke the linker.
-  tool_path { name: "ld" path: "/usr/bin/ld" }
-
-  tool_path { name: "nm" path: "/usr/bin/nm" }
-  tool_path { name: "objcopy" path: "/usr/bin/objcopy" }
   objcopy_embed_flag: "-I"
   objcopy_embed_flag: "binary"
-  tool_path { name: "objdump" path: "/usr/bin/objdump" }
-  tool_path { name: "strip" path: "/usr/bin/strip" }
 
   # Anticipated future default.
   unfiltered_cxx_flag: "-no-canonical-prefixes"
@@ -67,11 +64,6 @@ toolchain {
   compiler_flag: "-fstack-protector"
   linker_flag: "-Wl,-z,relro,-z,now"
 
-  # Enable coloring even if there's no attached terminal. Bazel removes the
-  # escape sequences if --nocolor is specified. This isn't supported by gcc
-  # on Ubuntu 14.04.
-  # compiler_flag: "-fcolor-diagnostics"
-
   # All warnings are enabled. Maybe enable -Werror as well?
   compiler_flag: "-Wall"
   # Enable a few more warnings that aren't part of -Wall.
@@ -86,9 +78,6 @@ toolchain {
   linker_flag: "-no-canonical-prefixes"
   # Have gcc return the exit code from ld.
   linker_flag: "-pass-exit-codes"
-  # Gold linker only? Can we enable this by default?
-  # linker_flag: "-Wl,--warn-execstack"
-  # linker_flag: "-Wl,--detect-odr-violations"
 
   compilation_mode_flags {
     mode: DBG
@@ -143,30 +132,27 @@ toolchain {
   tool_path { name: "cpp" path: "/usr/bin/arm-linux-gnueabihf-cpp" }
   tool_path { name: "dwp" path: "/usr/bin/arm-linux-gnueabihf-dwp" }
   tool_path { name: "gcc" path: "/usr/bin/arm-linux-gnueabihf-gcc" }
-  cxx_flag: "-std=c++0x"
-  linker_flag: "-lstdc++"
+  tool_path { name: "gcov" path: "/usr/bin/arm-linux-gnueabihf-gcov" }
+  # C(++) compiles invoke the compiler (as that is the one knowing where
+  # to find libraries), but we provide LD so other rules can invoke the linker.
+  tool_path { name: "ld" path: "/usr/bin/arm-linux-gnueabihf-ld" }
+  tool_path { name: "nm" path: "/usr/bin/arm-linux-gnueabihf-nm" }
+  tool_path { name: "objcopy" path: "/usr/bin/arm-linux-gnueabihf-objcopy" }
+  tool_path { name: "objdump" path: "/usr/bin/arm-linux-gnueabihf-objdump" }
+  tool_path { name: "strip" path: "/usr/bin/arm-linux-gnueabihf-strip" }
 
   # TODO(bazel-team): In theory, the path here ought to exactly match the path
   # used by gcc. That works because bazel currently doesn't track files at
   # absolute locations and has no remote execution, yet. However, this will need
   # to be fixed, maybe with auto-detection?
-  cxx_builtin_include_directory: "/usr/lib/gcc/"
-  cxx_builtin_include_directory: "/usr/local/include"
-  cxx_builtin_include_directory: "/usr/include"
   cxx_builtin_include_directory: "/usr/arm-linux-gnueabihf/include"
   cxx_builtin_include_directory: "/usr/lib/gcc-cross/arm-linux-gnueabihf/6/include"
-  tool_path { name: "gcov" path: "/usr/bin/arm-linux-gnueabihf-gcov" }
+  #cxx_builtin_include_directory: "/usr/lib/gcc/"
+  #cxx_builtin_include_directory: "/usr/local/include"
+  #cxx_builtin_include_directory: "/usr/include"
 
-  # C(++) compiles invoke the compiler (as that is the one knowing where
-  # to find libraries), but we provide LD so other rules can invoke the linker.
-  tool_path { name: "ld" path: "/usr/bin/arm-linux-gnueabihf-ld" }
-
-  tool_path { name: "nm" path: "/usr/bin/arm-linux-gnueabihf-nm" }
-  tool_path { name: "objcopy" path: "/usr/bin/arm-linux-gnueabihf-objcopy" }
   objcopy_embed_flag: "-I"
   objcopy_embed_flag: "binary"
-  tool_path { name: "objdump" path: "/usr/bin/arm-linux-gnueabihf-objdump" }
-  tool_path { name: "strip" path: "/usr/bin/arm-linux-gnueabihf-strip" }
 
   # Anticipated future default.
   unfiltered_cxx_flag: "-no-canonical-prefixes"
@@ -188,11 +174,6 @@ toolchain {
   compiler_flag: "-fstack-protector"
   linker_flag: "-Wl,-z,relro,-z,now"
 
-  # Enable coloring even if there's no attached terminal. Bazel removes the
-  # escape sequences if --nocolor is specified. This isn't supported by gcc
-  # on Ubuntu 14.04.
-  # compiler_flag: "-fcolor-diagnostics"
-
   # All warnings are enabled. Maybe enable -Werror as well?
   compiler_flag: "-Wall"
   # Enable a few more warnings that aren't part of -Wall.
@@ -207,9 +188,6 @@ toolchain {
   linker_flag: "-no-canonical-prefixes"
   # Have gcc return the exit code from ld.
   linker_flag: "-pass-exit-codes"
-  # Gold linker only? Can we enable this by default?
-  # linker_flag: "-Wl,--warn-execstack"
-  # linker_flag: "-Wl,--detect-odr-violations"
 
   compilation_mode_flags {
     mode: DBG
