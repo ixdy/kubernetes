@@ -1,7 +1,7 @@
 package(default_visibility = ["//visibility:public"])
 
 load("@io_bazel_rules_docker//container:container.bzl", "container_bundle", "container_image")
-load("@io_kubernetes_build//defs:build.bzl", "release_filegroup")
+load("@io_k8s_repo_infra//defs:build.bzl", "release_filegroup")
 load(":code_generation_test.bzl", "code_generation_test_suite")
 
 code_generation_test_suite(
@@ -30,23 +30,48 @@ filegroup(
 # in build/common.sh.
 DOCKERIZED_BINARIES = {
     "cloud-controller-manager": {
-        "base": "@debian-base-amd64//image",
+        "base": select(
+            {
+                "@io_bazel_rules_go//go/platform:linux_amd64": "@debian-base-amd64//image",
+                "@io_bazel_rules_go//go/platform:linux_arm": "@debian-base-arm//image",
+            },
+        ),
         "target": "//cmd/cloud-controller-manager:cloud-controller-manager",
     },
     "kube-apiserver": {
-        "base": "@debian-base-amd64//image",
+        "base": select(
+            {
+                "@io_bazel_rules_go//go/platform:linux_amd64": "@debian-base-amd64//image",
+                "@io_bazel_rules_go//go/platform:linux_arm": "@debian-base-arm//image",
+            },
+        ),
         "target": "//cmd/kube-apiserver:kube-apiserver",
     },
     "kube-controller-manager": {
-        "base": "@debian-base-amd64//image",
+        "base": select(
+            {
+                "@io_bazel_rules_go//go/platform:linux_amd64": "@debian-base-amd64//image",
+                "@io_bazel_rules_go//go/platform:linux_arm": "@debian-base-arm//image",
+            },
+        ),
         "target": "//cmd/kube-controller-manager:kube-controller-manager",
     },
     "kube-scheduler": {
-        "base": "@debian-base-amd64//image",
+        "base": select(
+            {
+                "@io_bazel_rules_go//go/platform:linux_amd64": "@debian-base-amd64//image",
+                "@io_bazel_rules_go//go/platform:linux_arm": "@debian-base-arm//image",
+            },
+        ),
         "target": "//cmd/kube-scheduler:kube-scheduler",
     },
     "kube-proxy": {
-        "base": "@debian-iptables-amd64//image",
+        "base": select(
+            {
+                "@io_bazel_rules_go//go/platform:linux_amd64": "@debian-iptables-amd64//image",
+                "@io_bazel_rules_go//go/platform:linux_arm": "@debian-iptables-arm//image",
+            },
+        ),
         "target": "//cmd/kube-proxy:kube-proxy",
     },
 }
@@ -71,7 +96,6 @@ DOCKERIZED_BINARIES = {
     images = {
         "k8s.gcr.io/%s:{STABLE_DOCKER_TAG}" % binary: binary + "-internal",
     },
-    stamp = True,
 ) for binary in DOCKERIZED_BINARIES.keys()]
 
 [genrule(
@@ -176,16 +200,16 @@ filegroup(
     static_runtime_libs = [":empty"],
     strip_files = ":empty",
     supports_param_files = 1,
-    toolchain_identifier = "local-" + cpu,
-) for cpu in [
-    "host",
-    "arm",
+    toolchain_identifier = libc + "-gcc-" + cpu,
+) for (libc, cpu) in [
+    ("host", "amd64"),
+    ("cross", "arm"),
 ]]
 
 cc_toolchain_suite(
     name = "toolchain",
     toolchains = {
-        "host|gcc": ":cc-gcc-host",
+        "amd64|gcc": ":cc-gcc-amd64",
         "arm|gcc": ":cc-gcc-arm",
     },
 )

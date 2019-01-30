@@ -1,7 +1,7 @@
 package(default_visibility = ["//visibility:public"])
 
-load("@io_kubernetes_build//defs:build.bzl", "release_filegroup")
-load("@io_kubernetes_build//defs:pkg.bzl", "pkg_tar")
+load("@io_k8s_repo_infra//defs:build.bzl", "release_filegroup")
+load("@io_k8s_repo_infra//defs:pkg.bzl", "pkg_tar")
 
 filegroup(
     name = "package-srcs",
@@ -74,16 +74,6 @@ pkg_tar(
 )
 
 pkg_tar(
-    name = "kubernetes-client-%s" % PLATFORM_ARCH_STRING,
-    extension = "tar.gz",
-    package_dir = "kubernetes",
-    tags = ["no-cache"],
-    deps = [
-        ":_client-bin",
-    ],
-)
-
-pkg_tar(
     name = "_node-bin",
     srcs = [
         "//build:client-targets",
@@ -93,18 +83,6 @@ pkg_tar(
     package_dir = "node/bin",
     tags = ["no-cache"],
     visibility = ["//visibility:private"],
-)
-
-pkg_tar(
-    name = "kubernetes-node-%s" % PLATFORM_ARCH_STRING,
-    srcs = [":license-targets"],
-    extension = "tar.gz",
-    mode = "0644",
-    package_dir = "kubernetes",
-    tags = ["no-cache"],
-    deps = [
-        ":_node-bin",
-    ],
 )
 
 pkg_tar(
@@ -137,42 +115,6 @@ pkg_tar(
     package_dir = "addons",
     tags = ["no-cache"],
     visibility = ["//visibility:private"],
-)
-
-pkg_tar(
-    name = "kubernetes-server-%s" % PLATFORM_ARCH_STRING,
-    srcs = [":license-targets"],
-    extension = "tar.gz",
-    mode = "0644",
-    package_dir = "kubernetes",
-    tags = ["no-cache"],
-    deps = [
-        ":_server-addons",
-        ":_server-bin",
-    ],
-)
-
-pkg_tar(
-    name = "_test-bin",
-    srcs = ["//build:test-targets"],
-    mode = "0755",
-    package_dir = "platforms/" + PLATFORM_ARCH_STRING.replace("-", "/"),
-    tags = ["no-cache"],
-    # TODO: how to make this multiplatform?
-    visibility = ["//visibility:private"],
-)
-
-pkg_tar(
-    name = "kubernetes-test",
-    srcs = ["//build:test-portable-targets"],
-    extension = "tar.gz",
-    package_dir = "kubernetes",
-    strip_prefix = "//",
-    tags = ["no-cache"],
-    deps = [
-        # TODO: how to make this multiplatform?
-        ":_test-bin",
-    ],
 )
 
 pkg_tar(
@@ -213,15 +155,123 @@ pkg_tar(
     ],
 )
 
+SERVER_PLATFORMS = [
+    "linux/amd64",
+    "linux/arm",
+    "linux/arm64",
+    "linux/s390x",
+    "linux/ppc64le",
+]
+
+NODE_PLATFORMS = [
+    "linux/amd64",
+    "linux/arm",
+    "linux/arm64",
+    "linux/s390x",
+    "linux/ppc64le",
+    "windows/amd64",
+]
+
+CLIENT_PLATFORMS = [
+    "linux/amd64",
+    "linux/386",
+    "linux/arm",
+    "linux/arm64",
+    "linux/s390x",
+    "linux/ppc64le",
+    "darwin/amd64",
+    "darwin/386",
+    "windows/amd64",
+    "windows/386",
+]
+
+[pkg_tar(
+    name = "kubernetes-client-%s" % platform.replace("/", "-"),
+    extension = "tar.gz",
+    package_dir = "kubernetes",
+    tags = ["no-cache"],
+    deps = select(
+        {
+            "@io_bazel_rules_go//go/platform:" + platform.replace("/", "_"): [":_client-bin"],
+        },
+        no_match_error = "incorrect platform selected",
+    ),
+) for platform in CLIENT_PLATFORMS]
+
+[pkg_tar(
+    name = "kubernetes-node-%s" % platform.replace("/", "-"),
+    srcs = [":license-targets"],
+    extension = "tar.gz",
+    mode = "0644",
+    package_dir = "kubernetes",
+    tags = ["no-cache"],
+    deps = select(
+        {
+            "@io_bazel_rules_go//go/platform:" + platform.replace("/", "_"): [":_node-bin"],
+        },
+        no_match_error = "incorrect platform selected",
+    ),
+) for platform in NODE_PLATFORMS]
+
+[pkg_tar(
+    name = "kubernetes-server-%s" % platform.replace("/", "-"),
+    srcs = [":license-targets"],
+    extension = "tar.gz",
+    mode = "0644",
+    package_dir = "kubernetes",
+    tags = ["no-cache"],
+    deps = select(
+        {
+            "@io_bazel_rules_go//go/platform:" + platform.replace("/", "_"): [
+                ":_server-addons",
+                ":_server-bin",
+            ],
+        },
+        no_match_error = "incorrect platform selected",
+    ),
+) for platform in SERVER_PLATFORMS]
+
+pkg_tar(
+    name = "_test-bin",
+    srcs = ["//build:test-targets"],
+    mode = "0755",
+    package_dir = "platforms/" + PLATFORM_ARCH_STRING.replace("-", "/"),
+    tags = ["no-cache"],
+    # TODO: how to make this multiplatform?
+    visibility = ["//visibility:private"],
+)
+
+pkg_tar(
+    name = "kubernetes-test",
+    srcs = ["//build:test-portable-targets"],
+    extension = "tar.gz",
+    package_dir = "kubernetes",
+    strip_prefix = "//",
+    tags = ["no-cache"],
+    deps = [
+        # TODO: how to make this multiplatform?
+        ":_test-bin",
+    ],
+)
+
 release_filegroup(
     name = "release-tars",
     srcs = [
         ":kubernetes.tar.gz",
-        ":kubernetes-client-%s.tar.gz" % PLATFORM_ARCH_STRING,
-        ":kubernetes-node-%s.tar.gz" % PLATFORM_ARCH_STRING,
-        ":kubernetes-server-%s.tar.gz" % PLATFORM_ARCH_STRING,
         ":kubernetes-manifests.tar.gz",
         ":kubernetes-src.tar.gz",
-        ":kubernetes-test.tar.gz",
+        #":kubernetes-test.tar.gz",
     ],
+    conditioned_srcs = {
+        "@io_bazel_rules_go//go/platform:linux_amd64": [
+            ":kubernetes-client-linux-amd64.tar.gz",
+            ":kubernetes-node-linux-amd64.tar.gz",
+            ":kubernetes-server-linux-amd64.tar.gz",
+        ],
+        "@io_bazel_rules_go//go/platform:linux_arm": [
+            ":kubernetes-client-linux-arm.tar.gz",
+            ":kubernetes-node-linux-arm.tar.gz",
+            ":kubernetes-server-linux-arm.tar.gz",
+        ],
+    },
 )

@@ -2,7 +2,12 @@ load("@io_bazel_rules_docker//container:container.bzl", "container_bundle", "con
 
 container_image(
     name = "hyperkube-internal",
-    base = "@debian-hyperkube-base-amd64//image",
+    base = select(
+        {
+            "@io_bazel_rules_go//go/platform:linux_amd64": "@debian-hyperkube-base-amd64//image",
+            "@io_bazel_rules_go//go/platform:linux_arm": "@debian-hyperkube-base-arm//image",
+        },
+    ),
     files = [
         "//cmd/hyperkube",
     ],

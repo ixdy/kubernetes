@@ -15,9 +15,9 @@ toolchain {
   supports_normalizing_ar: false
   supports_start_end_lib: false
   target_libc: "host"
-  target_cpu: "host"
+  target_cpu: "amd64"
   target_system_name: "host"
-  toolchain_identifier: "local-host"
+  toolchain_identifier: "host-gcc-amd64"
 
   tool_path { name: "ar" path: "/usr/bin/ar" }
   tool_path { name: "compat-ld" path: "/usr/bin/ld" }
@@ -122,10 +122,10 @@ toolchain {
   supports_interface_shared_objects: false
   supports_normalizing_ar: false
   supports_start_end_lib: false
-  target_libc: "arm"
+  target_libc: "cross-arm"
   target_cpu: "arm"
   target_system_name: "arm"
-  toolchain_identifier: "local-arm"
+  toolchain_identifier: "cross-gcc-arm"
 
   tool_path { name: "ar" path: "/usr/bin/arm-linux-gnueabihf-ar" }
   tool_path { name: "compat-ld" path: "/usr/bin/arm-linux-gnueabihf-ld" }
