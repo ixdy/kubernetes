@@ -9,6 +9,7 @@ load(
 go_binary(
     name = "gendocs",
     embed = [":go_default_library"],
+    pure = "off",
 )
 
 go_library(

@@ -33,17 +33,6 @@ http_archive(
     urls = mirror("https://github.com/coreos/etcd/releases/download/v%s/etcd-v%s-linux-amd64.tar.gz" % (ETCD_VERSION, ETCD_VERSION)),
 )
 
-#http_archive(
-#    name = "io_bazel_rules_docker",
-#    sha256 = "c0e9d27e6ca307e4ac0122d3dd1df001b9824373fb6fb8627cd2371068e51fef",
-#    strip_prefix = "rules_docker-0.6.0",
-#    urls = mirror("https://github.com/bazelbuild/rules_docker/archive/v0.6.0.tar.gz"),
-#)
-local_repository(
-    name = "io_bazel_rules_docker",
-    path = "/usr/local/google/home/jgrafton/code/src/github.com/bazelbuild/rules_docker",
-)
-
 load("@bazel_skylib//lib:versions.bzl", "versions")
 
 versions.check(minimum_bazel_version = "0.17.2")
@@ -56,10 +45,24 @@ go_register_toolchains(
     go_version = "1.11.5",
 )
 
-load("@io_bazel_rules_docker//container:container.bzl", "container_pull", container_repositories = "repositories")
+http_archive(
+    name = "io_bazel_rules_docker",
+    sha256 = "aed1c249d4ec8f703edddf35cbe9dfaca0b5f5ea6e4cd9e83e99f3b0d1136c3d",
+    strip_prefix = "rules_docker-0.7.0",
+    urls = mirror("https://github.com/bazelbuild/rules_docker/archive/v0.7.0.tar.gz"),
+)
+
+load(
+    "@io_bazel_rules_docker//repositories:repositories.bzl",
+    container_repositories = "repositories",
+)
 
 container_repositories()
 
+load(
+    "@io_bazel_rules_docker//container:container.bzl",
+    "container_pull",
+)
 load("//build:workspace.bzl", "CNI_VERSION", "CRI_TOOLS_VERSION", "debian_base_image_dependencies")
 
 http_file(

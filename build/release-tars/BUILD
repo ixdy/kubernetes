@@ -185,6 +185,16 @@ CLIENT_PLATFORMS = [
     "windows/386",
 ]
 
+TEST_PLATFORMS = [
+    "linux/amd64",
+    "linux/arm",
+    "linux/arm64",
+    "linux/s390x",
+    "linux/ppc64le",
+    "darwin/amd64",
+    "windows/amd64",
+]
+
 [pkg_tar(
     name = "kubernetes-client-%s" % platform.replace("/", "-"),
     extension = "tar.gz",
@@ -231,27 +241,29 @@ CLIENT_PLATFORMS = [
     ),
 ) for platform in SERVER_PLATFORMS]
 
-pkg_tar(
-    name = "_test-bin",
-    srcs = ["//build:test-targets"],
+[pkg_tar(
+    name = "kubernetes-test-%s" % platform.replace("/", "-"),
+    srcs = select(
+        {
+            "@io_bazel_rules_go//go/platform:" + platform.replace("/", "_"): [
+                "//build:test-targets",
+            ],
+        },
+        no_match_error = "incorrect platform selected",
+    ),
+    extension = "tar.gz",
     mode = "0755",
-    package_dir = "platforms/" + PLATFORM_ARCH_STRING.replace("-", "/"),
+    package_dir = "kubernetes/test/bin",
     tags = ["no-cache"],
-    # TODO: how to make this multiplatform?
-    visibility = ["//visibility:private"],
-)
+) for platform in TEST_PLATFORMS]
 
 pkg_tar(
-    name = "kubernetes-test",
+    name = "kubernetes-test-portable",
     srcs = ["//build:test-portable-targets"],
     extension = "tar.gz",
     package_dir = "kubernetes",
     strip_prefix = "//",
     tags = ["no-cache"],
-    deps = [
-        # TODO: how to make this multiplatform?
-        ":_test-bin",
-    ],
 )
 
 release_filegroup(
@@ -260,18 +272,20 @@ release_filegroup(
         ":kubernetes.tar.gz",
         ":kubernetes-manifests.tar.gz",
         ":kubernetes-src.tar.gz",
-        #":kubernetes-test.tar.gz",
+        ":kubernetes-test-portable.tar.gz",
     ],
     conditioned_srcs = {
         "@io_bazel_rules_go//go/platform:linux_amd64": [
             ":kubernetes-client-linux-amd64.tar.gz",
             ":kubernetes-node-linux-amd64.tar.gz",
             ":kubernetes-server-linux-amd64.tar.gz",
+            ":kubernetes-test-linux-amd64.tar.gz",
         ],
         "@io_bazel_rules_go//go/platform:linux_arm": [
             ":kubernetes-client-linux-arm.tar.gz",
             ":kubernetes-node-linux-arm.tar.gz",
             ":kubernetes-server-linux-arm.tar.gz",
+            ":kubernetes-test-linux-arm.tar.gz",
         ],
     },
 )

@@ -107,6 +107,7 @@ go_test(
         "volume_manager_test.go",
     ],
     embed = [":go_default_library"],
+    pure = "off",
     tags = ["e2e"],
     deps = [
         "//pkg/api/v1/node:go_default_library",

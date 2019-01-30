@@ -9,6 +9,7 @@ load(
 go_binary(
     name = "kubemark",
     embed = [":go_default_library"],
+    pure = "off",
 )
 
 go_library(
