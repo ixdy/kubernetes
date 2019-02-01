@@ -1,6 +1,6 @@
 package(default_visibility = ["//visibility:public"])
 
-load("@io_k8s_repo_infra//defs:deb.bzl", "k8s_deb", "deb_data")
+load("@io_k8s_repo_infra//defs:deb.bzl", "GOARCH_TO_DEBARCH", "deb_data", "k8s_deb")
 load("@io_k8s_repo_infra//defs:build.bzl", "release_filegroup")
 load("@io_k8s_repo_infra//defs:pkg.bzl", "pkg_tar")
 load("//build:workspace.bzl", "CNI_VERSION", "CRI_TOOLS_VERSION")
@@ -12,13 +12,17 @@ load("//build:workspace.bzl", "CNI_VERSION", "CRI_TOOLS_VERSION")
 # images.
 release_filegroup(
     name = "debs",
-    srcs = [
-        ":cri-tools.deb",
-        ":kubeadm.deb",
-        ":kubectl.deb",
-        ":kubelet.deb",
-        ":kubernetes-cni.deb",
-    ],
+    srcs = [],
+    conditioned_srcs = {
+        "@io_bazel_rules_go//go/platform:" + goarch: [
+            ":cri-tools-%s.deb" % goarch,
+            ":kubeadm-%s.deb" % goarch,
+            ":kubectl-%s.deb" % goarch,
+            ":kubelet-%s.deb" % goarch,
+            ":kubernetes-cni-%s.deb" % goarch,
+        ]
+        for goarch, debarch in GOARCH_TO_DEBARCH.items()
+    },
 )
 
 [deb_data(
@@ -91,17 +95,17 @@ deb_data(
     ],
 )
 
-pkg_tar(
-    name = "kubernetes-cni-data",
+[pkg_tar(
+    name = "kubernetes-cni-data-%s" % goarch,
     package_dir = "/opt/cni/bin",
-    deps = ["@kubernetes_cni//file"],
-)
+    deps = ["@kubernetes_cni_%s//file" % goarch],
+) for goarch, debarch in GOARCH_TO_DEBARCH.items()]
 
-pkg_tar(
-    name = "cri-tools-data",
+[pkg_tar(
+    name = "cri-tools-data-%s" % goarch,
     package_dir = "/usr/bin",
-    deps = ["@cri_tools//file"],
-)
+    deps = ["@cri_tools_%s//file" % goarch],
+) for goarch, debarch in GOARCH_TO_DEBARCH.items()]
 
 k8s_deb(
     name = "cloud-controller-manager",

@@ -1,24 +1,28 @@
 package(default_visibility = ["//visibility:public"])
 
-load("@bazel_tools//tools/build_defs/pkg:rpm.bzl", "pkg_rpm")
 load("//build:workspace.bzl", "CNI_VERSION", "CRI_TOOLS_VERSION")
+load("@io_k8s_repo_infra//defs:build.bzl", "release_filegroup")
+load("@io_k8s_repo_infra//defs:rpm.bzl", "GOARCH_TO_RPMARCH", "k8s_rpm")
 
-filegroup(
+release_filegroup(
     name = "rpms",
-    srcs = [
-        ":cri-tools",
-        ":kubeadm",
-        ":kubectl",
-        ":kubelet",
-        ":kubernetes-cni",
-    ],
+    srcs = [],
+    conditioned_srcs = {
+        "@io_bazel_rules_go//go/platform:" + goarch: [
+            ":cri-tools-%s" % goarch,
+            ":kubeadm-%s" % goarch,
+            ":kubectl-%s" % goarch,
+            ":kubelet-%s" % goarch,
+            ":kubernetes-cni-%s" % goarch,
+        ]
+        for goarch, rpmarch in GOARCH_TO_RPMARCH.items()
+    },
     tags = ["manual"],
     visibility = ["//visibility:public"],
 )
 
-pkg_rpm(
+k8s_rpm(
     name = "kubectl",
-    architecture = "x86_64",
     changelog = "//:CHANGELOG.md",
     data = [
         "//cmd/kubectl",
@@ -28,9 +32,8 @@ pkg_rpm(
     version_file = "//build:os_package_version",
 )
 
-pkg_rpm(
+k8s_rpm(
     name = "kubelet",
-    architecture = "x86_64",
     changelog = "//:CHANGELOG.md",
     data = [
         "kubelet.service",
@@ -41,9 +44,8 @@ pkg_rpm(
     version_file = "//build:os_package_version",
 )
 
-pkg_rpm(
+k8s_rpm(
     name = "kubeadm",
-    architecture = "x86_64",
     changelog = "//:CHANGELOG.md",
     data = [
         "10-kubeadm.conf",
@@ -57,23 +59,21 @@ pkg_rpm(
     version_file = "//build:os_package_version",
 )
 
-pkg_rpm(
+k8s_rpm(
     name = "kubernetes-cni",
-    architecture = "x86_64",
     changelog = "//:CHANGELOG.md",
     data = [
-        "@kubernetes_cni//file",
+        "@kubernetes_cni_{GOARCH}//file",
     ],
     spec_file = "kubernetes-cni.spec",
     tags = ["manual"],
     version = CNI_VERSION,
 )
 
-pkg_rpm(
+k8s_rpm(
     name = "cri-tools",
-    architecture = "x86_64",
     data = [
-        "@cri_tools//file",
+        "@cri_tools_{GOARCH}//file",
     ],
     spec_file = "cri-tools.spec",
     tags = ["manual"],

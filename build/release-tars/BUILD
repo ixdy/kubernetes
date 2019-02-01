@@ -51,9 +51,6 @@ pkg_tar(
     tags = ["no-cache"],
 )
 
-# FIXME: this should be configurable/auto-detected
-PLATFORM_ARCH_STRING = "linux-amd64"
-
 # Included in node and server tarballs.
 filegroup(
     name = "license-targets",

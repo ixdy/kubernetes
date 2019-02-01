@@ -80,9 +80,15 @@ DOCKERIZED_BINARIES = {
     name = binary + "-internal",
     base = meta["base"],
     cmd = ["/usr/bin/" + binary],
-    debs = [
-        "//build/debs:%s.deb" % binary,
-    ],
+    debs = select(
+        {
+            "@io_bazel_rules_go//go/platform:%s" % goarch: ["//build/debs:%s-%s.deb" % (binary, goarch)]
+            for goarch in [
+                "amd64",
+                "arm",
+            ]
+        },
+    ),
     stamp = True,
     symlinks = {
         # Some cluster startup scripts expect to find the binaries in /usr/local/bin,
