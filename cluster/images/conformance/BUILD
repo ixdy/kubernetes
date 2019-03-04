@@ -1,4 +1,5 @@
 load("@io_bazel_rules_docker//container:container.bzl", "container_bundle", "container_image", "container_layer")
+load("@io_bazel_rules_docker//contrib:push-all.bzl", "docker_push")
 load("//build:platforms.bzl", "SERVER_PLATFORMS", "for_platforms")
 
 container_layer(
@@ -62,6 +63,23 @@ container_image(
     "",
     ".tar",
 ]]
+
+[container_bundle(
+    name = "conformance-push-bundle-%s" % arch,
+    images = {
+        "{STABLE_DOCKER_PUSH_REGISTRY}/conformance-%s:{STABLE_DOCKER_TAG}" % arch: "conformance-internal",
+    },
+    tags = ["manual"],
+    visibility = ["//visibility:public"],
+) for arch in SERVER_PLATFORMS["linux"]]
+
+docker_push(
+    name = "push-image",
+    bundle = select(for_platforms(
+        for_server = ":conformance-push-bundle-{ARCH}",
+        only_os = "linux",
+    )),
+)
 
 filegroup(
     name = "package-srcs",

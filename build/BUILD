@@ -1,6 +1,7 @@
 package(default_visibility = ["//visibility:public"])
 
 load("@io_bazel_rules_docker//container:container.bzl", "container_bundle", "container_image")
+load("@io_bazel_rules_docker//contrib:push-all.bzl", "docker_push")
 load("@io_k8s_repo_infra//defs:build.bzl", "release_filegroup")
 load(":code_generation_test.bzl", "code_generation_test_suite")
 load(":platforms.bzl", "SERVER_PLATFORMS", "for_platforms")
@@ -96,8 +97,6 @@ DOCKERIZED_BINARIES = {
     visibility = ["//visibility:private"],
 ) for binary in DOCKERIZED_BINARIES.keys()]
 
-# We create two container bundles with the desired tags; one with an architecture in the name
-# and one without.
 # In the bash-based build (build/lib/release.sh), the images built for amd64 do not use
 # an arch in their name (but other arches do), and the GCE cluster scripts
 # (which sideload the images via tarfiles) expect there not to be an arch.
@@ -106,17 +105,9 @@ DOCKERIZED_BINARIES = {
 # Instead, for now, we use the archless name for the image tars saved in the server tarball,
 # to satisfy GCE and other similar providers. (If one were to pull the images via the manifest
 # list, the arch wouldn't appear in the name either.)
+# We create a separate bundle containing all
 # The bundle with the arch isn't used currently, but might be at some point for pushing to gcr.io
 # and to then create a manifest list (possibly outside of bazel).
-[[container_bundle(
-    name = "%s-%s" % (binary, arch),
-    images = {
-        "k8s.gcr.io/%s-%s:{STABLE_DOCKER_TAG}" % (binary, arch): "%s-internal-%s" % (binary, arch),
-    },
-    tags = ["manual"],
-    visibility = ["//visibility:public"],
-) for binary in DOCKERIZED_BINARIES.keys()] for arch in SERVER_PLATFORMS["linux"]]
-
 [container_bundle(
     name = binary,
     images = {
@@ -150,6 +141,24 @@ release_filegroup(
     name = "docker-artifacts",
     srcs = [":%s.tar" % binary for binary in DOCKERIZED_BINARIES.keys()] +
            [":%s.docker_tag" % binary for binary in DOCKERIZED_BINARIES.keys()],
+)
+
+[container_bundle(
+    name = "server-images-push-bundle-%s" % arch,
+    images = {
+        "{STABLE_DOCKER_PUSH_REGISTRY}/%s-%s:{STABLE_DOCKER_TAG}" % (binary, arch): "%s-internal-%s" % (binary, arch)
+        for binary in DOCKERIZED_BINARIES.keys()
+    },
+    tags = ["manual"],
+    visibility = ["//visibility:public"],
+) for arch in SERVER_PLATFORMS["linux"]]
+
+docker_push(
+    name = "push-server-images",
+    bundle = select(for_platforms(
+        for_server = ":server-images-push-bundle-{ARCH}",
+        only_os = "linux",
+    )),
 )
 
 # KUBE_CLIENT_TARGETS
